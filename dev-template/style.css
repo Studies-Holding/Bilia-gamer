@@ -1,0 +1,210 @@
+/* ================================================================
+   BILIA-V4 — dev-template/style.css
+   Styles de base pour les jeux développeurs tiers
+   Reset + Variables CSS BiLiA + Responsive
+   ================================================================ */
+
+/* ── Variables CSS (injectées par le SDK depuis le thème) ─────── */
+:root {
+  --main-color:  #00f2ff;
+  --accent:      #b400ff;
+  --bg-color:    #050d1a;
+  --surface:     #0f1e38;
+  --surface-2:   #162440;
+  --white:       #e8f4ff;
+  --muted:       rgba(232, 244, 255, 0.4);
+  --border-color:rgba(0, 242, 255, 0.18);
+  --glow-shadow: 0 0 20px rgba(0,242,255,0.4);
+  --neon-glow:   rgba(0,242,255,0.6);
+  --font-head:   'Rajdhani', 'Inter', sans-serif;
+  --font-body:   'Inter', 'Montserrat', sans-serif;
+  --transition:  .3s ease;
+  --hud-height:  5rem;  /* espace réservé pour le HUD BiLiA */
+}
+
+/* ── Reset ─────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body             { width: 100%; height: 100%; overflow: hidden; }
+
+body {
+  font-family:       var(--font-body);
+  background-color:  var(--bg-color);
+  color:             var(--white);
+  -webkit-font-smoothing: antialiased;
+  /* Transition douce lors des changements de thème */
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* ── Zone de jeu principale ─────────────────────────────────────── */
+#game-root {
+  position:   relative;
+  width:      100%;
+  /* Hauteur totale MOINS l'espace du HUD flottant BiLiA */
+  height:     calc(100dvh - var(--hud-height));
+  margin-top: var(--hud-height);
+  overflow:   hidden;
+  display:    flex;
+  align-items:    center;
+  justify-content:center;
+}
+
+/* ── Canvas ─────────────────────────────────────────────────────── */
+#game-canvas {
+  display:    block;
+  max-width:  100%;
+  max-height: 100%;
+  /* Conserver les proportions du jeu */
+  object-fit: contain;
+  border:  1px solid var(--border-color);
+  border-radius: 0.8rem;
+  box-shadow: var(--glow-shadow);
+  background: var(--surface);
+  /* Transitions de thème */
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+  touch-action: none; /* pour les gestes tactiles */
+  cursor: crosshair;
+}
+
+/* ── UI Overlay (score, vies, etc.) ────────────────────────────── */
+#ui-overlay {
+  position:  absolute;
+  top:       0.8rem;
+  left:      50%;
+  transform: translateX(-50%);
+  display:   flex;
+  gap:       1.5rem;
+  align-items: center;
+  pointer-events: none;
+  z-index: 10;
+}
+
+#score-display {
+  font-family:    var(--font-head);
+  font-size:      clamp(1.4rem, 4vw, 2.4rem);
+  font-weight:    700;
+  color:          var(--main-color);
+  text-shadow:    var(--glow-shadow);
+  letter-spacing: 0.1em;
+}
+
+/* ── Écrans (start, gameover, unauthorized) ─────────────────────── */
+#start-screen,
+#gameover-screen,
+#unauthorized-screen {
+  position:        absolute;
+  inset:           0;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  background:      rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index:         100;
+  animation:       screenFadeIn 0.3s ease both;
+}
+
+[hidden] { display: none !important; }
+
+/* ── Card centrale des écrans ───────────────────────────────────── */
+.start-card {
+  text-align:       center;
+  background:       var(--surface);
+  border:           1px solid var(--border-color);
+  border-radius:    1.6rem;
+  padding:          clamp(2rem, 5vw, 4rem) clamp(2.5rem, 7vw, 5rem);
+  max-width:        min(44rem, 90vw);
+  width:            100%;
+  box-shadow:       0 0 40px var(--neon-glow);
+  animation:        cardPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+#game-icon,
+#result-icon {
+  font-size:     clamp(3rem, 10vw, 5rem);
+  margin-bottom: 1.2rem;
+  display:       block;
+  animation:     iconFloat 3s ease-in-out infinite;
+}
+
+#game-title,
+#result-title {
+  font-family:    var(--font-head);
+  font-size:      clamp(2rem, 6vw, 3.2rem);
+  font-weight:    700;
+  color:          var(--white);
+  letter-spacing: 0.06em;
+  margin-bottom:  0.8rem;
+  text-shadow:    0 0 12px var(--neon-glow);
+}
+
+.desc,
+#result-score {
+  font-size:     clamp(1.3rem, 3.5vw, 1.6rem);
+  color:         var(--muted);
+  line-height:   1.6;
+  margin-bottom: 2rem;
+}
+
+#result-score { color: var(--main-color); font-weight: 700; font-size: clamp(1.8rem, 5vw, 2.4rem); }
+
+/* ── Bouton principal ───────────────────────────────────────────── */
+.btn-primary {
+  display:         inline-flex;
+  align-items:     center;
+  gap:             0.8rem;
+  padding:         1rem 2.8rem;
+  background:      var(--main-color);
+  color:           #000;
+  border:          none;
+  border-radius:   0.6rem;
+  cursor:          pointer;
+  font-family:     var(--font-head);
+  font-size:       clamp(1.4rem, 4vw, 1.8rem);
+  font-weight:     700;
+  letter-spacing:  0.08em;
+  transition:      0.2s;
+  touch-action:    manipulation;
+}
+
+.btn-primary:hover   { filter: brightness(1.15); box-shadow: var(--glow-shadow); }
+.btn-primary:active  { transform: scale(0.96); }
+.btn-primary:focus-visible { outline: 3px solid var(--main-color); outline-offset: 3px; }
+
+/* ── Animations ─────────────────────────────────────────────────── */
+@keyframes screenFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes cardPop {
+  from { opacity: 0; transform: scale(0.9) translateY(1.5rem); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+@keyframes neonPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.65; }
+}
+
+/* ── MediaPipe — vidéo cachée ───────────────────────────────────── */
+#bilia-camera-feed {
+  position:   absolute;
+  width:      1px;
+  height:     1px;
+  opacity:    0;
+  pointer-events: none;
+  overflow:   hidden;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  :root { --hud-height: 4.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
