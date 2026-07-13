@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    /* ── Cible & Module ─────────────────────────────────── */
+    "target": "ES2022",
+    "module": "CommonJS",
+    "lib": ["ES2022"],
+
+    /* ── Résolution ─────────────────────────────────────── */
+    "moduleResolution": "node16",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+
+    /* ── Chemins de sortie ──────────────────────────────── */
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    /* ── Qualité ────────────────────────────────────────── */
+    "strict": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "removeComments": false,
+
+    /* ── Alias @shared/* → ../../shared/* ───────────────── */
+    "paths": {
+      "@shared/types":  ["../../shared/types/index.ts"],
+      "@shared/types/*":["../../shared/types/*"],
+      "@shared/lib/*":  ["../../shared/lib/*"],
+      "@shared/config/*":["../../shared/config/*"],
+      "@shared/sdk/*":  ["../../shared/sdk/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
