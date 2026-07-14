@@ -13,5 +13,5 @@
     "sourceMap":         true,
     "noEmit":            true
   },
-  "include": ["config/**/*", "sdk/**/*", "types/**/*", "lib/**/*"]
+  "include": ["config/**/*", "sdk/**/*", "types/**/*", "lib/**/*", "logger/**/*", "middleware/**/*"]
 }

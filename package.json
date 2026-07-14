@@ -1,0 +1,35 @@
+{
+  "name": "bilia-v4",
+  "version": "4.0.0",
+  "private": true,
+  "description": "BiLiA-V4 — Plateforme PWA parent/enfant : monorepo (microservices + apps + landing).",
+  "workspaces": [
+    "shared",
+    "services/auth-service",
+    "services/core-service",
+    "services/game-service",
+    "services/socket-service",
+    "dev-template"
+  ],
+  "scripts": {
+    "install-all": "node scripts/install-all.js",
+    "build-all": "node scripts/build-all.js",
+    "test-all": "node scripts/test-all.js",
+    "dev": "concurrently -k -n AUTH,CORE,GAME,SOCKET -c blue,green,yellow,magenta \"npm run dev -w services/auth-service\" \"npm run dev -w services/core-service\" \"npm run dev -w services/game-service\" \"npm run dev -w services/socket-service\"",
+    "dev:auth": "npm run dev -w services/auth-service",
+    "dev:core": "npm run dev -w services/core-service",
+    "dev:game": "npm run dev -w services/game-service",
+    "dev:socket": "npm run dev -w services/socket-service",
+    "demarrer:local": "npm run dev",
+    "build:services": "node scripts/build-all.js services",
+    "build:apps": "node scripts/build-all.js apps",
+    "test": "npm run test-all"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.18.0",
+    "npm": ">=9.0.0"
+  }
+}

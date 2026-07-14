@@ -2,7 +2,7 @@
 //  BILIA-V4 — services/core-service/src/routes/index.ts
 // ================================================================
 import { Router }   from 'express';
-import { requireAuth } from '../middleware/auth';
+import { requireAuth } from '../../../../shared/middleware/auth';
 import { submitScore, syncScores, getLeaderboard, getHistory } from '../controllers/scoreController';
 import { getShop, buyItem, getWallet, getInventory, equipItem } from '../controllers/shopController';
 import { getReport, getTimeline, getGameBreakdown }              from '../controllers/analyticsController';

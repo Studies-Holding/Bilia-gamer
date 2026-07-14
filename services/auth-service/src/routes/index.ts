@@ -3,7 +3,7 @@
 // ================================================================
 import { Router } from 'express';
 import { register, login, magicLogin, getMe, getProfiles, createProfile, updateProfile } from '../controllers/authController';
-import { requireAuth } from '../middleware/auth';
+import { requireAuth } from '../../../../shared/middleware/auth';
 
 const r = Router();
 r.post('/register',       register);

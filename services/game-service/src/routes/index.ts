@@ -2,7 +2,7 @@
 //  BILIA-V4 — services/game-service/src/routes/index.ts
 // ================================================================
 import { Router } from 'express';
-import { requireAuth, requireRole } from '../middleware/auth';
+import { requireAuth, requireRole } from '../../../../shared/middleware/auth';
 import {
   getCatalogue,
   getGame,

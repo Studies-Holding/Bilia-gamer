@@ -343,6 +343,6 @@ export type     ApiRes<T = unknown>  = ApiOk<T> | ApiErr;
 
 declare global {
   namespace Express {
-    interface Request { user?: IJwtPayload }
+    interface Request { user?: IJwtPayload; requestId?: string }
   }
 }

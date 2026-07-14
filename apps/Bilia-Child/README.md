@@ -1,75 +1,38 @@
-# React + TypeScript + Vite
+# apps/Bilia-Child — PWA enfant
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Rôle
 
-Currently, two official plugins are available:
+L'app que l'enfant utilise au quotidien : connexion par Code Magique, choix du profil/thème, catalogue de jeux (embarqués en iframe via le SDK), progression (XP/rang/BiCoins/badges), boutique, Quick Chat, et respect du couvre-feu/temps de jeu (via `socket-service`).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Ce qui existe déjà côté plateforme à consommer
 
-## React Compiler
+| Besoin | Où |
+| --- | --- |
+| Connexion par Code Magique | `POST /api/auth/magic` (`auth-service`) |
+| Profil courant, thème équipé | `GET /api/auth/me`, `PATCH /api/auth/profiles/:id` |
+| Catalogue de jeux | `GET /api/games` (`game-service`) |
+| Demander à jouer à un nouveau jeu | `POST /api/downloads/request` |
+| Scores, XP, boutique, wallet | `services/core-service` (voir son README) |
+| Thèmes visuels + variables CSS | `GET /api/themes/:id/css-vars` ou `shared/config/themes.config.ts` |
+| Temps réel : couvre-feu, Quick Chat, défis | `socket-service` — se connecter en Socket.io et rejoindre `join:child` avec le `profileId`, écouter `time:lock`/`time:warning`/`chat:message`/`challenge:in`, envoyer un `time:heartbeat` toutes les minutes pendant le jeu |
+| Communication avec un jeu embarqué (iframe) | `shared/sdk/bilia-sdk.ts` — le jeu appelle le SDK, qui `postMessage` vers la PWA parente |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## PWA — checklist technique
 
-## Expanding the ESLint configuration
+- `manifest.webmanifest` : nom, icônes (192/512 + maskable), couleur de thème, `display: standalone`, `start_url`.
+- Service worker (`sw.js`) : cache-first pour les assets statiques et les jeux téléchargés (pour jouer hors-ligne une fois un jeu approuvé), network-first pour les appels API.
+- `gateway/nginx.conf` sert déjà `sw.js` en `no-cache` et `manifest.webmanifest` avec le bon `Content-Type` — rien à changer côté Nginx, juste fournir les fichiers dans le build.
+- Icônes et splash screens adaptés à un usage tablette/mobile enfant (tester l'installabilité avec Lighthouse).
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Animations : Motion
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Utilisation de [Motion](https://motion.dev) pour :
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- Les transitions entre écrans (accueil → catalogue → jeu)
+- Les animations de gain d'XP/BiCoins, montée de niveau, déblocage de badge
+- Les micro-interactions de la boutique (achat, équipement d'un item)
+- Les alertes de temps (`time:warning`) — une animation douce plutôt qu'une simple pop-up brutale, adaptée à un public enfant
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm install motion
 ```

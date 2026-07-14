@@ -10,7 +10,6 @@
     "publish": "node tunnel-server.js --publish"
   },
   "dependencies": {
-    "@localtunnel/server": "^3.0.1",
     "localtunnel":         "^2.0.2",
     "express":             "^4.19.2",
     "chokidar":            "^3.6.0",

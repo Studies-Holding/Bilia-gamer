@@ -41,7 +41,7 @@ const TUNNEL_SUBDOMAIN = process.env.BILIA_TUNNEL_SUBDOMAIN || `bilia-game-${Dat
 function readManifest() {
   const path = join(GAME_DIR, 'bilia.config.json');
   if (!existsSync(path)) {
-    console.error(chalk.red('❌  bilia.config.json introuvable dans ce dossier.'));
+    console.error(chalk.red(' bilia.config.json introuvable dans ce dossier.'));
     process.exit(1);
   }
   return JSON.parse(readFileSync(path, 'utf-8'));
@@ -76,7 +76,7 @@ const HMR_SCRIPT = `
     const ws = new WebSocket('ws://' + location.hostname + ':${GAME_PORT}/__hmr__');
     ws.onmessage = (e) => { if (e.data === 'reload') { console.log('[BILIA HMR] Rechargement...'); location.reload(); } };
     ws.onclose   = () => setTimeout(() => location.reload(), 1000);
-    console.log('[BILIA DEV] Hot Reload actif ✅');
+    console.log('[BILIA DEV] Hot Reload actif ');
   })();
 </script>
 `;
@@ -167,19 +167,19 @@ if (MODE === 'dev') {
   });
 
   watcher.on('change', (filePath) => {
-    console.log(chalk.yellow(`\n🔄 Modifié : ${filePath.replace(GAME_DIR, '.')}`));
+    console.log(chalk.yellow(`\n Modifié : ${filePath.replace(GAME_DIR, '.')}`));
     broadcastReload();
   });
 
   watcher.on('add', (filePath) => {
-    console.log(chalk.green(`\n✅ Ajouté  : ${filePath.replace(GAME_DIR, '.')}`));
+    console.log(chalk.green(`\n Ajouté  : ${filePath.replace(GAME_DIR, '.')}`));
     broadcastReload();
   });
 }
 
 // ── Tunnel sécurisé ───────────────────────────────────────────────
 async function startTunnel(port) {
-  console.log(chalk.cyan('\n🌐 Ouverture du tunnel sécurisé...\n'));
+  console.log(chalk.cyan('\n Ouverture du tunnel sécurisé...\n'));
   try {
     const tunnel = await localtunnel({
       port,
@@ -187,17 +187,17 @@ async function startTunnel(port) {
     });
 
     tunnel.on('close', () => {
-      console.log(chalk.yellow('\n⚠️  Tunnel fermé. Redémarrez le serveur.'));
+      console.log(chalk.yellow('\n  Tunnel fermé. Redémarrez le serveur.'));
     });
 
     tunnel.on('error', (err) => {
-      console.error(chalk.red('\n❌ Erreur tunnel : ' + err.message));
+      console.error(chalk.red('\n Erreur tunnel : ' + err.message));
       console.log(chalk.dim('   → Conseil : essayez BILIA_TUNNEL_SUBDOMAIN=un-autre-nom\n'));
     });
 
     return tunnel.url;
   } catch (err) {
-    console.error(chalk.red('❌ Impossible d\'ouvrir le tunnel : ' + err.message));
+    console.error(chalk.red(' Impossible d\'ouvrir le tunnel : ' + err.message));
     console.log(chalk.dim('   → Le jeu reste accessible localement.\n'));
     return null;
   }
@@ -206,7 +206,7 @@ async function startTunnel(port) {
 // ── Publication vers game-service ────────────────────────────────
 async function publishGame(tunnelUrl) {
   const manifest = readManifest();
-  console.log(chalk.blue('\n📤 Publication du jeu vers le game-service...\n'));
+  console.log(chalk.blue('\n Publication du jeu vers le game-service...\n'));
 
   try {
     const payload = {
@@ -223,11 +223,11 @@ async function publishGame(tunnelUrl) {
 
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    console.log(chalk.green('✅ Jeu publié avec succès !'));
+    console.log(chalk.green('Jeu publié avec succès !'));
     console.log(chalk.dim(`   ID : ${data.gameId || manifest.gameId}`));
     return data;
   } catch (err) {
-    console.log(chalk.yellow(`⚠️  game-service indisponible (${err.message})`));
+    console.log(chalk.yellow(`  game-service indisponible (${err.message})`));
     console.log(chalk.dim('   → Le jeu reste accessible via le tunnel.\n'));
     return null;
   }

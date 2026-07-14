@@ -18,6 +18,9 @@ import type {
   ITimeConfig,
 } from '../../../shared/types';
 import { QUICK_MESSAGES } from '../../../shared/types';
+import { logger } from './logger';
+import { httpLogger } from '../../../shared/logger';
+import { isCurfewActive } from './utils/timeGuard';
 
 dotenv.config();
 
@@ -30,6 +33,7 @@ const httpServer = createServer(app);
 
 app.use(helmet({ crossOriginEmbedderPolicy: false }));
 app.use(cors({ credentials: true, origin: ORIGINS }));
+app.use(httpLogger(logger));
 app.use(express.json());
 
 // ── Socket.io ────────────────────────────────────────────────────
@@ -75,15 +79,6 @@ DailyUsageSchema.index({ profileId: 1, date: 1 }, { unique: true });
 const DailyUsage = model('DailyUsage', DailyUsageSchema);
 
 // ── Vérification du temps ─────────────────────────────────────────
-function isCurfewActive(start: string, end: string, now = new Date()): boolean {
-  const [sh, sm] = start.split(':').map(Number);
-  const [eh, em] = end.split(':').map(Number);
-  const cur = now.getHours() * 60 + now.getMinutes();
-  const s   = sh * 60 + sm;
-  const e   = eh * 60 + em;
-  return s < e ? cur >= s && cur < e : cur >= s || cur < e;
-}
-
 async function checkTimeGuard(profileId: string): Promise<{
   allowed: boolean; reason?: string; message?: string; minutesLeft?: number
 }> {
@@ -117,15 +112,18 @@ async function checkTimeGuard(profileId: string): Promise<{
 
 // ── Connexion Socket.io ───────────────────────────────────────────
 io.on('connection', (socket: Socket<ClientToServerEvents, ServerToClientEvents>) => {
+  logger.info('socket_connected', { socketId: socket.id });
 
   socket.on('join:parent', (userId: string) => {
     socket.join(`parent:${userId}`);
     addToRoom(parentRooms, userId, socket.id);
+    logger.info('parent_joined', { userId, socketId: socket.id });
   });
 
   socket.on('join:child', async (profileId: string) => {
     socket.join(`child:${profileId}`);
     addToRoom(childRooms, profileId, socket.id);
+    logger.info('child_joined', { profileId, socketId: socket.id });
 
     // Vérification immédiate du temps
     const status = await checkTimeGuard(profileId);
@@ -176,7 +174,10 @@ io.on('connection', (socket: Socket<ClientToServerEvents, ServerToClientEvents>)
     });
   });
 
-  socket.on('disconnect', () => removeSocket(socket.id));
+  socket.on('disconnect', () => {
+    removeSocket(socket.id);
+    logger.info('socket_disconnected', { socketId: socket.id });
+  });
 });
 
 // ── Helpers exportables (appelés par game-service) ────────────────
@@ -219,7 +220,7 @@ app.get('/health', (_req, res) => res.json({ service: 'socket-service', status: 
 // ── Démarrage ─────────────────────────────────────────────────────
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/bilia_socket')
   .then(() => {
-    console.log('✅ [socket-service] MongoDB connecté');
-    httpServer.listen(PORT, () => console.log(`🔌 socket-service → http://localhost:${PORT}`));
+    logger.info('MongoDB connecté');
+    httpServer.listen(PORT, () => logger.info(`socket-service démarré → http://localhost:${PORT}`));
   })
-  .catch(e => { console.error(e); process.exit(1); });
+  .catch(e => { logger.error('Échec connexion MongoDB', { error: String(e) }); process.exit(1); });

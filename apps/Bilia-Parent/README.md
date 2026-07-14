@@ -1,75 +1,34 @@
-# React + TypeScript + Vite
+# apps/Bilia-Parent — Dashboard parent (à initialiser)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Dossier volontairement vide : c'est à toi de l'initialiser (`npm create vite@latest . -- --template react-ts` conseillé). Ce README documente ce qui est attendu pour bien s'intégrer au reste de la plateforme.
 
-Currently, two official plugins are available:
+## Rôle
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+L'espace que le parent utilise pour : créer/gérer les profils enfants, approuver les demandes de jeux, configurer le temps d'écran/couvre-feu, consulter les rapports d'analyse (temps de jeu, compétences travaillées, progression).
 
-## React Compiler
+## Ce qui existe déjà côté plateforme à consommer
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Besoin | Où |
+| --- | --- |
+| Connexion / inscription parent | `POST /api/auth/login`, `POST /api/auth/register` (`auth-service`) |
+| Gestion des profils enfants | `GET/POST/PATCH /api/auth/profiles` |
+| Demandes de jeux en attente | `GET /api/downloads/pending`, `PATCH /api/downloads/:id/approve OU reject (`game-service`) |
+| Rapports d'analyse | `GET /api/analytics/:profileId/report`, `/timeline`, `/games` (`core-service`) |
+| Configuration du temps d'écran / couvre-feu | `socket-service` (modèle `TimeConfig`) — **à exposer via une route REST dédiée si ce n'est pas déjà le cas**, voir `services/socket-service/ROADMAP.md` |
+| Notifications temps réel (nouvelle demande de jeu, etc.) | Se connecter en Socket.io et rejoindre `join:parent` avec le `userId`, écouter les événements pertinents |
 
-## Expanding the ESLint configuration
+## PWA
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+`gateway/nginx.conf` sert déjà `parent.VOTRE_DOMAINE.com` avec une CSP renforcée (`X-Frame-Options: DENY`). Rendre ce dashboard installable (manifest + service worker) est optionnel mais recommandé pour un usage mobile confortable.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Animations : Motion
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Utilisation de [Motion](https://motion.dev) pour :
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Les transitions entre sections du dashboard (profils, jeux, analytics, réglages)
+- Les graphiques de progression (courbes de temps de jeu, radar de compétences) — Motion s'intègre bien avec des libs de graphes (ex. Recharts) pour animer l'apparition des données
+- Les confirmations d'action (approbation/refus d'un jeu) avec un retour visuel clair
 
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm install motion
 ```

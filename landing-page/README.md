@@ -1,75 +1,28 @@
-# React + TypeScript + Vite
+# landing-page  Site vitrine
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Rôle
 
-Currently, two official plugins are available:
+Site public (marketing) : présentation de BiLiA, argumentaire parents, liens vers l'inscription et vers `bilia.bilia.com` (PWA enfant) / `parent.bilia.com` (dashboard).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Attendu côté intégration
 
-## React Compiler
+- Servi par Nginx sur `bilia.com` (voir `gateway/nginx.conf` — `root /var/www/landing`, fallback SPA, cache 1 an sur les assets).
+- Une fois initialisé avec un `package.json`, ajoute `"landing-page"` au tableau `workspaces` du `package.json` racine, et une entrée dans `apps` de `scripts/build-all.js` si besoin (déjà prévu — `build-all.js apps` inclut `landing-page`).
+- Script `build` attendu produisant un dossier statique (`dist/` par défaut avec Vite).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Animations : Motion
 
-## Expanding the ESLint configuration
+Utilisation de [Motion](https://motion.dev) (ex-Framer Motion) pour :
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Les transitions d'entrée des sections (hero, fonctionnalités, témoignages)
+- Les micro-interactions sur les CTA ("Essayer gratuitement", "Voir la démo")
+- D'éventuelles animations de scroll (`whileInView`) pour dynamiser la présentation des thèmes/jeux
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm install motion
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Ce qui existe déjà côté plateforme
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
+- Thèmes visuels (`shared/config/themes.config.ts`) et leurs variables CSS (`themeToCSSVars`) — utile si la landing veut prévisualiser les thèmes disponibles dans la boutique.
+- Endpoint public `GET /api/themes` (`core-service`) si tu préfères charger les thèmes dynamiquement plutôt que de dupliquer le registre côté front.
