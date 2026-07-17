@@ -1,0 +1,41 @@
+{
+  "name": "@shared/ui",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Bibliothèque de composants React (shadcn/ui), hooks et styles partagés par les apps AFG.",
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./globals.css": "./src/globals.css",
+    "./lib/utils": "./src/lib/utils.ts",
+    "./components/*": "./src/components/*.tsx",
+    "./hooks/*": "./src/hooks/*.ts"
+  },
+  "scripts": {
+    "generate:css": "tsx scripts/generate-globals-css.ts",
+    "build": "pnpm run generate:css && tsc -p tsconfig.json --noEmit",
+    "dev": "pnpm run generate:css",
+    "lint": "echo \"@shared/ui: no linter configured yet\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "echo \"@shared/ui: no tests yet\""
+  },
+  "peerDependencies": {
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.6.0"
+  },
+  "devDependencies": {
+    "@shared/core": "workspace:*",
+    "@types/node": "^24.13.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "tsx": "^4.19.2",
+    "typescript": "~6.0.2"
+  }
+}

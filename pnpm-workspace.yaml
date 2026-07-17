@@ -1,0 +1,17 @@
+packages:
+  - 'apps/**'
+  - 'contracts/**'
+  - 'docs/**'
+  - 'infra/**'
+  - 'nginx/**'
+  - 'sdk/**'
+  - 'services/**'
+  - 'shared/**'
+
+allowBuilds:
+  esbuild: true
+
+onlyBuiltDependencies:
+  - esbuild
+
+storeDir: /tmp/pnpm-store

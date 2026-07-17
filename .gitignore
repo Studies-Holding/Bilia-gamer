@@ -1,52 +1,10 @@
-# ================================================================
-#  BILIA-V4 — .gitignore
-# ================================================================
-
-# Dépendances
-node_modules/
-.pnp
-.pnp.js
-
-# Builds
-dist/
-build/
+node_modules
+dist
+build
+coverage
 *.tsbuildinfo
-
-# Environnement — NE JAMAIS COMMITER
 .env
 .env.local
-.env.*.local
-!.env.example
-
-# Logs
-logs/
-*.log
-npm-debug.log*
-
-# Éditeurs
-.vscode/*
-!.vscode/extensions.json
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
 .DS_Store
-Thumbs.db
-
-# Docker secrets
-docker/ssl/
-docker/mongo-data/
-
-# Stockage jeux (trop lourd pour git — utiliser git-lfs ou S3)
-services/game-service/storage/games/
-
-# Caches
-.cache/
-.parcel-cache/
-.turbo/
-
-# Coverage
-coverage/
-.nyc_output/
+*.log
+.turbo

@@ -1,0 +1,19 @@
+/* Fichier généré — ne pas éditer à la main. Source : shared/core/src/themes/registry.ts */
+/* Régénérer avec : pnpm --filter @shared/ui run generate:css */
+
+@import "tailwindcss";
+
+:root {
+  --accent: #aa3bff;
+  --accent-bg: rgba(170, 59, 255, 0.1);
+  --accent-border: rgba(170, 59, 255, 0.5);
+  --bg: #ffffff;
+  --text: #6b6375;
+  --text-h: #08060d;
+  --border: #e5e4e7;
+}
+
+body {
+  color: var(--text);
+  background: var(--bg);
+}

@@ -1,0 +1,23 @@
+{
+  "name": "@bilia/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Contrats inter-services : types d'événements (bus) et OpenAPI. Source de vérité, cf. docs/modules/shared-and-sdk.md §C.",
+  "type": "module",
+  "main": "./dist/events/index.js",
+  "types": "./dist/events/index.d.ts",
+  "exports": {
+    ".": "./dist/events/index.js",
+    "./events": "./dist/events/index.js",
+    "./events/*": "./dist/events/versions/*.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "echo \"@bilia/contracts: no linter configured yet\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "echo \"@bilia/contracts: no tests yet\""
+  },
+  "devDependencies": {
+    "typescript": "~6.0.2"
+  }
+}

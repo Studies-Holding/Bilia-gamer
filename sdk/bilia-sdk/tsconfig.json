@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    // Le SDK tourne côté client de jeu (navigateur) autant que côté outillage
+    // Node : on ajoute DOM pour fetch/Headers/RequestInit sans dépendre d'une
+    // version précise de @types/node.
+    "lib": ["ES2023", "DOM"]
+  },
+  "include": ["src"]
+}

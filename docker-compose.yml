@@ -1,0 +1,94 @@
+# Environnement de développement — AFG / Bilibilia (Lot 0, cf. docs/AFG-DT-003 §3)
+#
+# En dev, une seule instance MongoDB héberge une base logique par service
+# (ADR-02 : autonomie par base, pas par cluster — le cluster-par-service est un
+# choix de déploiement prod, pas une contrainte du poste de dev).
+#
+# coturn (STUN/TURN) n'est volontairement pas inclus ici : requis uniquement
+# pour les déploiements exposant des jeux d'action en geckos.io (cf. AFG-DT-005 §7),
+# hors périmètre Lot 0 / MVP tour-par-tour.
+
+name: bilia-gamer
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-bilia}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-bilia_dev_only}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongo-express:
+    image: mongo-express:1
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_ROOT_USER:-bilia}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ROOT_PASSWORD:-bilia_dev_only}
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_BASICAUTH: "false"
+    ports:
+      - "8081:8081"
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    restart: unless-stopped
+    ports:
+      - "1025:1025" # SMTP (notification-service en dev)
+      - "8025:8025" # UI web
+
+  # --- profile "app" : conteneurise le gateway + nginx (optionnel en dev) ---
+  # Au jour le jour, il est plus rapide d'itérer avec `pnpm --filter gateway dev`
+  # en local (hors Docker) et de ne garder en conteneur que l'infra stateful
+  # ci-dessus. Ce profil sert surtout à valider le Dockerfile avant staging :
+  #   docker compose --profile app up -d --build
+  gateway:
+    profiles: ["app"]
+    build:
+      context: .
+      dockerfile: services/gateway/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 5000
+    ports:
+      - "5000:5000"
+
+  nginx:
+    profiles: ["app"]
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on:
+      - gateway
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8080:8080"
+
+volumes:
+  mongo-data:
+  redis-data:

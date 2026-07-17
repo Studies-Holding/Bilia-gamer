@@ -1,35 +1,39 @@
 {
-  "name": "bilia-v4",
-  "version": "4.0.0",
+  "name": "bilia-gamer",
+  "version": "1.0.0",
   "private": true,
-  "description": "BiLiA-V4 — Plateforme PWA parent/enfant : monorepo (microservices + apps + landing).",
-  "workspaces": [
-    "shared",
-    "services/auth-service",
-    "services/core-service",
-    "services/game-service",
-    "services/socket-service",
-    "dev-template"
-  ],
+  "description": "AFG / Bilibilia — monorepo (apps, services, shared, sdk, contracts). Voir docs/README.md.",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "packageManager": "pnpm@11.13.1",
+  "engines": {
+    "node": ">=22"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^11.13.1",
+      "onFail": "download"
+    }
+  },
   "scripts": {
-    "install-all": "node scripts/install-all.js",
-    "build-all": "node scripts/build-all.js",
-    "test-all": "node scripts/test-all.js",
-    "dev": "concurrently -k -n AUTH,CORE,GAME,SOCKET -c blue,green,yellow,magenta \"npm run dev -w services/auth-service\" \"npm run dev -w services/core-service\" \"npm run dev -w services/game-service\" \"npm run dev -w services/socket-service\"",
-    "dev:auth": "npm run dev -w services/auth-service",
-    "dev:core": "npm run dev -w services/core-service",
-    "dev:game": "npm run dev -w services/game-service",
-    "dev:socket": "npm run dev -w services/socket-service",
-    "demarrer:local": "npm run dev",
-    "build:services": "node scripts/build-all.js services",
-    "build:apps": "node scripts/build-all.js apps",
-    "test": "npm run test-all"
+    "install-all": "pnpm install",
+    "dev": "pnpm -r --parallel --if-present run dev",
+    "build-all": "pnpm -r --if-present run build",
+    "build": "pnpm run build-all",
+    "test-all": "pnpm -r --if-present run test",
+    "test": "pnpm run test-all",
+    "lint": "pnpm -r --if-present run lint",
+    "lint:fix": "pnpm -r --if-present run lint -- --fix",
+    "typecheck": "pnpm -r --if-present run typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\" --ignore-path .gitignore",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\" --ignore-path .gitignore",
+    "new:service": "node scripts/create-service.mjs"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
-  },
-  "engines": {
-    "node": ">=18.18.0",
-    "npm": ">=9.0.0"
+    "prettier": "^3.4.2",
+    "typescript": "~6.0.2"
   }
 }
