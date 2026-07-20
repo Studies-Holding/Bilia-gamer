@@ -1,15 +1,18 @@
-# Module — `tournament-service`
+# Module : `tournament-service`
 
 **Phase :** P2 · **Port :** 5013 · **Base :** MongoDB `tournament`
 
 ## 1. Responsabilité
+
 Gérer les **tournois, saisons et événements** (compétitions individuelles/équipes, écoles, entreprises). S'appuie sur le moteur de règles de `game-service` pour l'exécution des matchs.
 
 ## 2. Périmètre fonctionnel par phase
+
 - **Phase 2 :** création de tournois (brackets, round-robin), inscription (gratuite ou frais en Jetons), saisons, événements, classements, récompenses ; tournois d'entreprise/école.
 - **Phase 3 :** tournois cross-plateforme, ligues récurrentes, événements sponsorisés, API Tournois publique complète.
 
 ## 3. Entités / modèles principaux
+
 - `Tournament` : format, participants, brackets, statut, récompenses.
 - `Season` : période, classement cumulé, récompenses de fin de saison.
 - `Event` : événement thématique/culturel daté.
@@ -17,20 +20,24 @@ Gérer les **tournois, saisons et événements** (compétitions individuelles/é
 - `Standing` : classements.
 
 ## 4. API principales
+
 - `POST /tournaments`, `POST /tournaments/:id/register`
 - `GET /tournaments/:id/bracket`, `GET /tournaments/:id/standings`
 - `POST /seasons`, `GET /events`
 
 ## 5. Événements
-- **Produits :** `TournamentScheduled`, `TournamentMatchScheduled`, `TournamentEntryRequested` (→ payment), `TournamentEnded`.
-- **Consommés :** `SessionEnded` (résultats de match), `PaymentSucceeded` (inscription).
+
+- **Produits :** `TournamentScheduled`, `TournamentMatchScheduled`, `TournamentEntryRequested` (→ payment, si frais réels hors Jetons), `TournamentPrizeAwarded` (→ wallet), `TournamentEnded`.
+- **Consommés :** `SessionEnded` (résultats de match), `PaymentSucceeded` (inscription en Mobile Money/carte).
 
 ## 6. Dépendances
-- **S :** `game` (exécution des matchs), `payment` (frais/récompenses), `identity` (participants/orgs).
+
+- **S :** `game` (exécution des matchs), `payment` (frais d'inscription en Mobile Money/carte uniquement), `wallet` (débit des frais d'inscription en Jetons **et** crédit des récompenses de fin de tournoi : appel direct, sans passer par `payment`, cf. `modules/wallet-service.md` §6), `identity` (participants/orgs).
 - Émet vers `notification`, `analytics`.
 
 ## 7. Arborescence
-```
+
+```text
 services/tournament-service/
 ├── src/
 │   ├── app.ts · index.ts · logger.ts
@@ -49,6 +56,7 @@ services/tournament-service/
 ```
 
 ## 8. Roadmap de conception du module
+
 1. `Tournament` + formats + génération de brackets (logique pure testée).
 2. Inscription (gratuit/Jetons) + intégration payment.
 3. Exécution des matchs via game + remontée des résultats.

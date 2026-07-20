@@ -1,0 +1,15 @@
+[configuration]
+
+entry_symbol = "afg_studio_library_init"
+compatibility_minimum = "4.3"
+reloadable = true
+
+[libraries]
+
+; Chemins relatifs a ce fichier — remplis par CMakeLists.txt (LIBRARY_OUTPUT_DIRECTORY).
+linux.debug.x86_64 = "bin/libafg_studio.linux.debug.x86_64.so"
+linux.release.x86_64 = "bin/libafg_studio.linux.release.x86_64.so"
+windows.debug.x86_64 = "bin/afg_studio.windows.debug.x86_64.dll"
+windows.release.x86_64 = "bin/afg_studio.windows.release.x86_64.dll"
+macos.debug = "bin/libafg_studio.macos.debug.framework"
+macos.release = "bin/libafg_studio.macos.release.framework"

@@ -1,0 +1,16 @@
+; Projet Godot minimal servant de "coquille" a l'editeur AFG Studio natif.
+; Ouvrir ce dossier avec l'editeur Godot 4.3+ officiel (non vendored ici, cf. README.md).
+; Le GDExtension addon/afg_studio se charge automatiquement (config_version=5, plugin actif).
+
+config_version=5
+
+[application]
+
+config/name="AFG Studio (editeur natif)"
+config/description="Outil de creation de jeu AFG — Niveau 3-4 (developpeurs, studios pro)."
+run/main_scene=""
+config/features=PackedStringArray("4.3")
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addon/afg_studio/plugin.cfg")

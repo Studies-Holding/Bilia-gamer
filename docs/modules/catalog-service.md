@@ -1,16 +1,19 @@
-# Module — `catalog-service`
+# Module : `catalog-service`
 
 **Phase :** MVP · **Port :** 5002 · **Base :** MongoDB `catalog` (+ index recherche)
 
 ## 1. Responsabilité
+
 Porter la **Marketplace** : fiches de jeux publiées, catégories, **taxonomie des jeux**, recherche multicritère, collections, mise en avant (nouveautés, populaires, recommandés), droits d'accès aux jeux.
 
 ## 2. Périmètre fonctionnel par phase
+
 - **MVP :** catalogue, recherche multicritère (âge, nombre de joueurs, durée, langue, culture, compétences via IDC, prix), catégories, collections, listings (nouveautés/populaires/recommandés simples), attribution du droit d'accès après achat.
 - **Phase 2 :** packs de jeux, offrir un jeu, précommandes, wishlist, codes/cartes cadeaux, vitrines thématiques, place de marché des assets.
 - **Phase 3 :** vitrines générées par IA, recommandations intelligentes, place de marché B2B, marketplace de composants/narrations.
 
 ## 3. Entités / modèles principaux
+
 - `Game` (vue catalogue) : titre, description, médias, âge, joueurs, durée, langues, modes, modèle éco, `creatorId`, `versionId`, `taxonomy`, `idcRef`, labels.
 - `Category` / `SubCategory`, `Collection` (thématiques, culturelles).
 - `GameListing` : nouveautés, populaires, recommandés, vitrines.
@@ -18,6 +21,7 @@ Porter la **Marketplace** : fiches de jeux publiées, catégories, **taxonomie d
 - `SearchIndex` (projection recherche).
 
 ## 4. API principales
+
 - `GET /games`, `GET /games/:id`, `GET /search?…` (multicritère)
 - `GET /categories`, `GET /collections/:id`
 - `GET /listings/{new|popular|recommended}`
@@ -25,15 +29,18 @@ Porter la **Marketplace** : fiches de jeux publiées, catégories, **taxonomie d
 - (interne) `POST /catalog/index` (indexation sur `GamePublished`)
 
 ## 5. Événements
+
 - **Produits :** `GameIndexed`, `AccessGranted`, `AccessRevoked`.
 - **Consommés :** `GamePublished`/`GameUpdated` (publishing), `PaymentSucceeded`/`SubscriptionChanged` (payment → droit d'accès), `IDCUpdated` (skills-idc → tri/reco).
 
 ## 6. Dépendances
+
 - **S :** `payment` (statut d'achat), `skills-idc` (IDC pour tri/recherche par compétences), `identity` (contexte profil), `governance` (badges labels/certification sur fiche), `i18n` (contenu de fiche localisé), `ai` (reco P3).
 - Externes : moteur de recherche (Atlas Search/OpenSearch), object storage (médias via CDN).
 
 ## 7. Arborescence
-```
+
+```text
 services/catalog-service/
 ├── src/
 │   ├── app.ts · index.ts · logger.ts
@@ -54,6 +61,7 @@ services/catalog-service/
 ```
 
 ## 8. Roadmap de conception du module
+
 1. Modèle `Game` (projection) + `Category`/`Collection`.
 2. Consumer `GamePublished` → indexation + listings de base.
 3. Recherche multicritère (dont filtre par compétences via IDC).

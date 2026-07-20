@@ -1,0 +1,14 @@
+{
+  "name": "afg-studio-editor-native",
+  "version": "0.1.0",
+  "description": "Dependances C++ de l'editeur AFG Game Studio (GDExtension Godot).",
+  "dependencies": [
+    "cpp-httplib",
+    "nlohmann-json",
+    {
+      "name": "catch2",
+      "version>=": "3.5.0"
+    }
+  ],
+  "builtin-baseline": "TO_PIN_ON_FIRST_SETUP"
+}

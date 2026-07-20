@@ -1,8 +1,8 @@
-# AFG-DT-000 — Cadrage Technique Global
+# AFG-DT-000 : Cadrage Technique Global
 
-**African Games Framework — Plateforme Bilibilia**
-**Version :** b1 · 14.07.2026 · **Statut :** Design de référence technique
-**Rattachement :** décline AFG-000 (Vision) et AFG-001 (CDCF) sur le plan technique.
+**African Games Framework : Plateforme Bilibilia**
+**Version :** b4 · 20.07.2026 · **Statut :** Design de référence technique
+**Rattachement :** décline **AFG-000** (Vision, reçu 20.07.2026) et **AFG-001** (CDCF, reçu 20.07.2026) sur le plan technique ; s'appuie également sur **AFG-002** (Architecture Fonctionnelle), **AFG-003** (Architecture Technique), **AFG-004** (AFG Game SDK Specification) et **AFG-005** (AFG Game Studio), reçus le 17.07.2026.
 
 ---
 
@@ -10,10 +10,14 @@
 
 Ce document traduit la vision stratégique (AFG-000) et le cahier des charges fonctionnel (AFG-001) en **décisions techniques structurantes**. Il fixe les principes d'architecture, la pile technologique, les contraintes non fonctionnelles et le découpage en domaines. Il sert de socle aux documents :
 
-- **AFG-DT-001** — Architecture globale
-- **AFG-DT-002** — Catalogue des modules & mapping fonctionnel
-- **AFG-DT-003** — Roadmap de conception
-- **`modules/*`** — Architecture, arborescence et roadmap de chaque service
+- **AFG-DT-001** : Architecture globale
+- **AFG-DT-002** : Catalogue des modules & mapping fonctionnel
+- **AFG-DT-003** : Roadmap de conception
+- **AFG-DT-004** : Décisions ouvertes & journal des arbitrages
+- **AFG-DT-005** : Moteur runtime et temps réel
+- **`modules/*`** : Architecture, arborescence et roadmap de chaque service
+
+**AFG, plateforme générique vs Bilibilia, produit** : AFG-002/003/004/005 décrivent **AFG (African Games Framework)** comme un framework/écosystème générique (SDK, Game Studio, certification, marketplaces multiples) ; **Bilibilia** est le premier produit/déploiement construit sur ce framework, avec son propre catalogue et sa propre marque. Les documents `AFG-DT-*` de ce dépôt couvrent la construction de Bilibilia sur les fondations AFG ; les capacités génériques du framework (SDK complet ~30 modules, Studio, badges de certification) sont documentées comme cible, phasées selon leur propre roadmap (cf. AFG-DT-002 §3bis, `modules/shared-and-sdk.md` §B, `modules/studio-service.md`).
 
 **BiLiA-V4** (prototype antérieur : monorepo TypeScript, microservices Express `auth`/`core`/`game`/`socket`, MongoDB par service, Socket.io, gateway Nginx, logger Winston partagé, `bilia-sdk`, `THEMES_REGISTRY`, BiCoins, couvre-feu) a validé ces choix technologiques mais **son code n'est pas conservé dans ce dépôt** (abandonné le 2026-07-17, décision actée en AFG-DT-004 §1). AFG **reconstruit chaque service from scratch** à sa forme cible, en reprenant les conventions techniques éprouvées de BiLiA-V4 (pile, découpage, patterns) sans étape d'extraction de code.
 
@@ -24,7 +28,7 @@ Ce document traduit la vision stratégique (AFG-000) et le cahier des charges fo
 Chaque conviction du CDCF impose une contrainte d'ingénierie. Le tableau ci-dessous rend cette traçabilité explicite.
 
 | Principe fonctionnel (AFG-000 / AFG-001) | Conséquence technique structurante |
-|---|---|
+| --- | --- |
 | Écosystème, pas une application | Architecture **microservices** par domaine métier, non un monolithe. Ouverture par **API publiques** dès la conception. |
 | Créateurs au cœur, sans redévelopper l'infra | **SDK** client + **services transverses** (comptes, parties, sauvegarde, paiement) exposés de façon stable et versionnée. |
 | Jeu intergénérationnel & diaspora | **Temps réel** robuste (Socket.io) tolérant à la latence/instabilité réseau ; **synchronisation multi-écrans** ; sessions reprenables. |
@@ -57,6 +61,7 @@ Chaque conviction du CDCF impose une contrainte d'ingénierie. Le tableau ci-des
 ## 4. Pile technologique
 
 ### 4.1 Backend
+
 - **Langage :** TypeScript (strict) partout.
 - **Runtime :** Node.js LTS.
 - **Framework HTTP :** Express (microservices, ports 5001+).
@@ -68,21 +73,27 @@ Chaque conviction du CDCF impose une contrainte d'ingénierie. Le tableau ci-des
 - **Logs :** Winston (shared/logger) + agrégation centralisée.
 
 ### 4.2 Frontend
+
 - **Web / PWA :** **React 19** + Vite (choisi et déjà scaffoldé dans `apps/*`) en **PWA** (service worker, offline-first, installable).
 - **Design system :** `THEMES_REGISTRY` + génération de variables CSS (thématisation par univers/pass culturels).
 - **Mobile :** PWA d'abord ; wrappers natifs Android/iOS en P2/P3 (Capacitor ou natif selon besoin).
 - **Animation :** intégration d'une librairie de motion (landing + apps).
+- **Éditeur natif C++ (P3) :** `apps/studio-editor-native` : GDExtension **C++20** sur **Godot Engine** (moteur MIT, non forké), pour les créateurs Niveau 3-4 du Game Studio. Ne remplace pas le Studio web ; second client de la même API `studio-service`. Cf. AFG-DT-001 ADR-11.
 
 ### 4.3 Moteur de jeu & runtime temps réel (jeux d'action)
-- Voir **AFG-DT-005** (pile moteur/runtime) : rendu **Babylon.js** (client) + **NullEngine** headless (serveur) pour les jeux d'action/3D, physique **Havok** par défaut / **Rapier** en option déterministe, réseau **bi-transport** (**geckos.io** UDP/WebRTC pour l'action, **Socket.io** pour le tour-par-tour/social — cas majoritaire du catalogue), STUN/TURN (**coturn**) uniquement là où geckos.io est utilisé.
+
+- Voir **AFG-DT-005** (pile moteur/runtime) : rendu **Babylon.js** (client) + **NullEngine** headless (serveur) pour les jeux d'action/3D, physique **Havok** par défaut / **Rapier** en option déterministe, réseau **bi-transport** (**geckos.io** UDP/WebRTC pour l'action, **Socket.io** pour le tour-par-tour/social : cas majoritaire du catalogue), STUN/TURN (**coturn**) uniquement là où geckos.io est utilisé.
 
 ### 4.4 IA
+
 - Orchestrateur IA (service dédié) appelant des modèles (LLM + modèles spécialisés reco/modération). Abstraction fournisseur pour ne pas coupler la plateforme à un provider.
 
 ### 4.5 Paiement
+
 - Agrégateur Mobile Money (Orange Money, MTN MoMo, Moov, Wave, Airtel) via PSP africain (ex. type agrégateur pan-africain) + cartes (Visa/Mastercard) + virements. Wallet et Jetons **internes** à la plateforme.
 
 ### 4.6 DevOps
+
 - Conteneurisation Docker, orchestration (Docker Compose en dev → Kubernetes en prod P2+), CI/CD (lint, test, build, scan), IaC, environnements dev/staging/prod.
 
 ---
@@ -90,7 +101,7 @@ Chaque conviction du CDCF impose une contrainte d'ingénierie. Le tableau ci-des
 ## 5. Exigences non fonctionnelles (NFR)
 
 | Domaine | Exigence cible |
-|---|---|
+| --- | --- |
 | **Performance** | API < 200 ms p95 (hors IA) ; latence temps réel de jeu < 150 ms perçue via optimistic updates. |
 | **Disponibilité** | 99,5 % MVP → 99,9 % P2 sur services critiques (identity, catalog, payment, realtime). |
 | **Résilience réseau** | Mode dégradé/offline pour la PWA joueur ; reprise de partie ; retry idempotent des paiements. |
@@ -121,7 +132,9 @@ Contrainte prioritaire du CDCF. Traitée comme **préoccupation transverse** app
 - Le fournisseur de modèles IA (abstraction prévue).
 - Le passage Kubernetes / Kafka (déclenché par la volumétrie réelle en P2).
 - Les wrappers natifs mobiles (PWA suffisante au MVP).
-- Le sort des données/comptes utilisateurs BiLiA-V4 s'il en existe en production (le code est abandonné, la question des données n'a pas été tranchée — voir AFG-DT-004 §3, point ouvert).
+- Le sort des données/comptes utilisateurs BiLiA-V4 s'il en existe en production (le code est abandonné, la question des données n'a pas été tranchée : voir AFG-DT-004 §3, point ouvert).
+- **AFG-000 (Vision) et AFG-001 (CDCF)** reçus le 20.07.2026 : rapprochement effectué (cf. AFG-DT-004 §8) : cohérent avec AFG-002/003/004/005, quelques ajouts intégrés (certification de confiance des créateurs, protection PI, labels CDCF, IA Business/Découverte Culturelle, APIs publiques nommées).
+- **AFG-002 à AFG-024** : la série CDCF (AFG-001, conclusion) annonce des documents jusqu'à AFG-024 ; 6 documents reçus à ce jour (000-005) sur une série d'environ 25. AFG-006/AFG-009 toujours non référencés (réservés ou inexistants) ; AFG-007/008/010 attendus, contenu inconnu.
 
 Ces points sont des **décisions différées assumées**, documentées comme telles pour être tranchées au bon moment sans bloquer le MVP.
 
